@@ -63,12 +63,10 @@
       .mdc-top-app-bar--fixed-adjust {padding-top: 0px;}
     </style>
     
-    <!-- Material Design Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-        <link rel="stylesheet" type="text/css" href="/cas/webjars/normalize.css/8.0.1/normalize-112272e51c80ffe5bd01becd2ce7d656.css" /><link rel="stylesheet" type="text/css" href="/cas/webjars/bootstrap/5.3.7/css/bootstrap-grid.min-16099f86d058b2b38b54eba53cf3aecd.css" /><link rel="stylesheet" type="text/css" href="/cas/webjars/material-components-web/14.0.0/dist/material-components-web.min-9da9033e8d04504fe54b3dbb1298fd78.css" /><link rel="stylesheet" type="text/css" href="/cas/webjars/mdi__font/7.4.47/css/materialdesignicons.min-2c83c4bce691e18f82409f87b2bf84e4.css" /><link rel="stylesheet" type="text/css" href="/cas/webjars/datatables/2.3.0/css/dataTables.dataTables-548843463de6eca582c1c5982bd027cc.css" /><link rel="stylesheet" type="text/css" href="/cas/css/cas-0d464b6d909bd0a7c0978d165b399b28.css" /><link rel="stylesheet" type="text/css" href="/cas/css/custom-c14be2cfb07365fa4f0bb7715fedffae.css" /><link rel="shortcut icon" href="/cas/favicon-12cf9a9579eb14a2f65f801d42b0ef1e.ico" /></head>
+        <link rel="stylesheet" type="text/css" href="/cas/webjars/normalize.css/8.0.1/normalize-112272e51c80ffe5bd01becd2ce7d656.css" /><link rel="stylesheet" type="text/css" href="/cas/webjars/bootstrap/5.3.7/css/bootstrap-grid.min-16099f86d058b2b38b54eba53cf3aecd.css" /><link rel="stylesheet" type="text/css" href="/cas/webjars/material-components-web/14.0.0/dist/material-components-web.min-9da9033e8d04504fe54b3dbb1298fd78.css" /><link rel="stylesheet" type="text/css" href="/cas/webjars/datatables/2.3.0/css/dataTables.dataTables-548843463de6eca582c1c5982bd027cc.css" /><link rel="stylesheet" type="text/css" href="/cas/css/cas-0d464b6d909bd0a7c0978d165b399b28.css" /><link rel="stylesheet" type="text/css" href="/cas/css/custom-c14be2cfb07365fa4f0bb7715fedffae.css" /><link rel="shortcut icon" href="/cas/favicon-12cf9a9579eb14a2f65f801d42b0ef1e.ico" /></head>
 
 <body class="login mdc-typography">
     <script type="text/javascript" src="/cas/webjars/jquery/3.7.1/jquery.min-2c872dbe60f4ba70fb85356113d8b35e.js"></script>
@@ -126,7 +124,7 @@
                             id="drawerButton"
                             data-bs-toggle="offcanvas"
                             data-bs-target="#app-drawer">
-                        <span class="mdi mdi-menu fa fa-bars"></span>
+                        <span class="fa fa-bars"></span>
                         <span class="visually-hidden">menu</span>
                     </button>
                 </section>
@@ -148,7 +146,7 @@
                             aria-label="Bookmark this page"
                             data-bs-toggle="modal"
                             data-bs-target="#cas-notification-dialog">
-                        <span class="mdi mdi-bell-alert fa fa-bell"></span>
+                        <span class="fa fa-bell"></span>
                         <span class="visually-hidden">notifications</span>
                         <i id="notifications-count" class="notifications-count count">2</i>
                     </button>
@@ -160,7 +158,7 @@
                         && ticketGrantingTicketId != null}"
                        class="mdc-icon-button mdc-top-app-bar__action-item"
                        aria-label="User Account">
-                        <span class="mdi mdi-account-group"></span>
+                        <span class="fas fa-users"></span>
                         <span class="visually-hidden">user account</span>
                     </a>
                 </section>
@@ -177,32 +175,32 @@
             <div class="mdc-drawer__content offcanvas-body">
                 <nav class="mdc-list list-group list-group-flush">
                     <a href="/cas/actuator" class="mdc-list-item list-group-item list-group-item-action">
-                        <i class="mdi mdi-cogs fa fa-cogs" aria-hidden="true"></i>&nbsp;
+                        <i class="fa fa-cogs" aria-hidden="true"></i>&nbsp;
                         <span class="mdc-list-item__text">Actuator Endpoints</span>
                     </a>
                     <a class="mdc-list-item list-group-item list-group-item-action" href="https://apereo.github.io/cas">
-                        <i class="mdi mdi-file-code-outline fas fa-file-code" aria-hidden="true"></i>&nbsp;
+                        <i class="fas fa-file-code" aria-hidden="true"></i>&nbsp;
                         <span class="mdc-list-item__text">Documentation</span>
                     </a>
                     <a class="mdc-list-item list-group-item list-group-item-action" href="https://github.com/apereo/cas/pulls">
-                        <i class="mdi mdi-call-merge fas fa-code-branch" aria-hidden="true"></i>&nbsp;
+                        <i class="fas fa-code-branch" aria-hidden="true"></i>&nbsp;
                         <span class="mdc-list-item__text">Pull Requests</span>
                     </a>
                     <a class="mdc-list-item list-group-item list-group-item-action"
                        href="https://apereo.github.io/cas/developer/Contributor-Guidelines.html">
-                        <i class="mdi mdi-information fas fa-info-circle" aria-hidden="true"></i>&nbsp;
+                        <i class="fas fa-info-circle" aria-hidden="true"></i>&nbsp;
                         <span class="mdc-list-item__text">Guide pour les contributeurs</span>
                     </a>
                     <a class="mdc-list-item list-group-item list-group-item-action" href="https://apereo.github.io/cas/Support.html">
-                        <i class="mdi mdi-help-circle fas fa-question-circle" aria-hidden="true"></i>&nbsp;
+                        <i class="fas fa-question-circle" aria-hidden="true"></i>&nbsp;
                         <span class="mdc-list-item__text">Support</span>
                     </a>
                     <a class="mdc-list-item list-group-item list-group-item-action" href="https://apereo.github.io/cas/Mailing-Lists.html">
-                        <i class="mdi mdi-email-newsletter fas fa-envelope-open-text" aria-hidden="true"></i>&nbsp;
+                        <i class="fas fa-envelope-open-text" aria-hidden="true"></i>&nbsp;
                         <span class="mdc-list-item__text">Listes de diffusion</span>
                     </a>
                     <a class="mdc-list-item list-group-item list-group-item-action" href="https://apereo.github.io/">
-                        <i class="mdi mdi-post fas fa-newspaper" aria-hidden="true"></i>&nbsp;
+                        <i class="fas fa-newspaper" aria-hidden="true"></i>&nbsp;
                         <span class="mdc-list-item__text">Blog</span>
                     </a>
                 </nav>
@@ -223,7 +221,7 @@
                 </h1>
                 <div class="mdc-dialog__content modal-body" id="notif-dialog-content">
                     <div id="cookiesSupportedDiv" class="cas-notification-message mdc-typography--body1" style="display: none">
-                        <h6 class="mdc-typography--headline6 mdi mdi-alert-circle fas fa-exclamation-circle">Cookies navigateur désactivés</h6>
+                        <h6 class="mdc-typography--headline6 fas fa-exclamation-circle">Cookies navigateur désactivés</h6>
                         <p class="text-wrap small">Votre navigateur ne supporte pas les cookies. La capacité du navigateur à stocker ou lire des cookies est essentielle pour que l’authentification unique fonctionne. Veuillez consulter les paramètres de votre navigateur et vous assurer que la prise en charge des cookies est activée.</p>
                     </div>
 
@@ -362,7 +360,7 @@
             <form method="post" id="fm1" action="ACHANGER">
                 <div id="login-form-controls">
                     <!--<h3 th:unless="${existingSingleSignOnSessionAvailable}" class="text-center">
-                        <i class="mdi mdi-security fas fa-shield-alt"></i>
+                        <i class="fas fa-shield-alt"></i>
                         <span th:utext="#{screen.welcome.instructions}">Enter your Username and Password:</span>
                     </h3>--><section class="cas-field form-group my-3" id="usernameSection">
                         <label for="username"
@@ -432,7 +430,7 @@
                                 <button
                                     class="reveal-password  mdc-input-group-append  bouton"
                                     tabindex="-1" type="button">
-                                    <i class="mdi mdi-eye reveal-password-icon fas fa-eye"></i>
+                                    <i class="fas fa-eye reveal-password-icon"></i>
                                    <!-- <span class="visually-hidden">Toggle Password</span>--></button>
                             </div>
                             
@@ -466,7 +464,7 @@
             <!--<hr th:if="${loginFormViewable and loginFormEnabled}" class="my-4"/>--><span>
                 <div id="pmlinks" class="my-2">
         <div>
-            <br /><span class="mdi mdi-account-question"></span>
+            <br /><span class="fas fa-user-question"></span>
             <span><a href="https://activation.universita.corsica/guichet_activation_reset_compte-front.php?acces=ok&profil=&id_site=0&type=changement">Mot de passe oublié ?</a></span>
             <a href="https://dsin.universita.corsica/plugins/faq/listing_faq-front.php?id_faq=5&acces=ok&id_art=4515&id_rub=0&id_site=47&id_menu=0&header_plugin=ok" target="_blank">Besoin d'aide ?</a>
         </div>

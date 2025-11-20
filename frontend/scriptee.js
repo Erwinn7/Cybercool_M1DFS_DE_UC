@@ -318,10 +318,10 @@ function resourceLoadedSuccessfully() {
             btn.attr("aria-checked", (i, val) => val === "true" ? "false" : "true");
             if (pwd.attr("type") === "text") {
                 pwd.attr("type", "password");
-                icon.removeClass("mdi-eye-off").addClass("mdi-eye");
+                icon.removeClass("fa-eye-slash").addClass("fa-eye");
             } else {
                 pwd.attr("type", "text");
-                icon.removeClass("mdi-eye").addClass("mdi-eye-off");
+                icon.removeClass("fa-eye").addClass("fa-eye-slash");
             }
         });
         
