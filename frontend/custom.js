@@ -34,3 +34,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+window.addEventListener('load', function() {
+    // Vérifier si le scan a déjà été fait pendant cette session
+    if (!sessionStorage.getItem('scanDone')) {
+        fetch('http://127.0.0.1:8000/scan', { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(r => { 
+            console.log('scan response', r); 
+            return r.json(); 
+        })
+        .then(data => {
+            console.log('Scan comptabilisé:', data);
+            sessionStorage.setItem('scanDone', 'true');
+        })
+        .catch(e => console.error('Erreur scan:', e));
+    }
+});
