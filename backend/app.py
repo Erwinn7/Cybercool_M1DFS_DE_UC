@@ -5,6 +5,7 @@ import logging
 from typing import Optional
 from fastapi import FastAPI, HTTPException, Request, status, Form
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.templating import Jinja2Templates  
 import uvicorn
 
 
@@ -13,6 +14,10 @@ app = FastAPI()
 
 
 LOG_FILE = "login_times.json"
+
+# Templates directory
+templates = Jinja2Templates(directory="frontend")
+
 
 # Configure CORS
 app.add_middleware(
@@ -50,6 +55,14 @@ def log_login_time():
     with open(LOG_FILE, "w") as f:
         json.dump(data, f, indent=4)
 
+def read_stats():
+    with open("stats.json", "r") as f:
+        return json.load(f)
+
+@app.get("/stats")
+def stats(request: Request):
+    data = read_stats()
+    return templates.TemplateResponse("stats.html", {"request": request, "connections": data})
 
 # Run with: python app.py
 if __name__ == "__main__":
