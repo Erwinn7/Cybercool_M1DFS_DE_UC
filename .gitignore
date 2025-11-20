@@ -1,0 +1,3 @@
+./portailWifiEnv
+*.pyc
+__pycache__/    
