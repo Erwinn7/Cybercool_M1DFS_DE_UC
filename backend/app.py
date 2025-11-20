@@ -32,15 +32,13 @@ app.add_middleware(
 
 
 @app.get("/login")
-async def show_login(request: Request, source: Optional[str] = None):
+async def show_login(request: Request):
     """
     Affiche le formulaire de login.
     Utiliser ?source=direct pour marquer la visite comme 'direct', sinon elle sera 'qr'.
     """
-    cookie_name = COOKIE_DIRECT if source == "direct" else COOKIE_QR
     response = templates.TemplateResponse("index.html", {"request": request})
     # Marque la visite côté client (valeur simple, durée 1h)
-    response.set_cookie(cookie_name, "1", max_age=3600)
     return response
 
 @app.post("/login")
