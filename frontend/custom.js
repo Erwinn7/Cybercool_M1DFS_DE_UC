@@ -20,13 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 
                 const data = await response.json();
-                console.log('Réponse du serveur:', data);
-                
-                if (response.ok) {
-                    alert('Connexion réussie ! Bienvenue ' + data.username);
-                } else {
-                    alert('Erreur de connexion');
-                }
             } catch (error) {
                 console.error('Erreur:', error);
                 alert('Impossible de se connecter au serveur');
