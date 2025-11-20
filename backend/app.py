@@ -13,7 +13,9 @@ import uvicorn
 app = FastAPI()
 
 
-LOG_FILE = "login_times.json"
+LOG_FILE = "visits.json"   # database
+COOKIE_QR = "visited_qr"
+COOKIE_DIRECT = "visited_direct"
 
 # Templates directory
 templates = Jinja2Templates(directory="frontend")
@@ -28,19 +30,54 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.get("/login")
+async def show_login(request: Request, source: Optional[str] = None):
+    """
+    Affiche le formulaire de login.
+    Utiliser ?source=direct pour marquer la visite comme 'direct', sinon elle sera 'qr'.
+    """
+    cookie_name = COOKIE_DIRECT if source == "direct" else COOKIE_QR
+    response = templates.TemplateResponse("index.html", {"request": request})
+    # Marque la visite côté client (valeur simple, durée 1h)
+    response.set_cookie(cookie_name, "1", max_age=3600)
+    return response
+
 @app.post("/login")
 async def login(username: str = Form(...), password: str = Form(...)):
     print(f"Received login attempt for user: {username}, password: {password}")
     # Ici vous pouvez ajouter votre logique d'authentification
 
-    log_login_time()
+    log_visit()
     return {"message": "Login successful", "username": username}
 
+
+# -----------------------------
+#  Load / Save JSON database
+# -----------------------------
+
+def load_db():
+    if not os.path.exists(LOG_FILE):
+        empty = {"loginQR": [], "loginDirect": []}
+        with open(LOG_FILE, "w") as f:
+            json.dump(empty, f, indent=4)
+        return empty
+
+    with open(LOG_FILE, "r") as f:
+        return json.load(f)
+    
+def save_db(data):
+    with open(LOG_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+
+# -----------------------------
+#  Fonctions pour log les visites
+# -----------------------------
 
 def log_login_time():
     timestamp = datetime.datetime.now(datetime.UTC).isoformat()
 
-    # If file doesn't exist, create it
+    # Si le fichier n'existe pas, le créer
     if not os.path.exists(LOG_FILE):
         with open(LOG_FILE, "w") as f:
             json.dump({"logins": []}, f, indent=4)
@@ -55,6 +92,29 @@ def log_login_time():
     with open(LOG_FILE, "w") as f:
         json.dump(data, f, indent=4)
 
+
+
+def log_visit(source: str = 'qr'): # Par défaut QR
+    """
+    source = "qr" or "direct"
+    """
+    db = load_db()
+
+    timestamp = datetime.datetime.now(datetime.UTC).isoformat()
+
+    if source == "qr":
+        db["loginQR"].append(timestamp)
+    elif source == "direct":
+        db["loginDirect"].append(timestamp)
+
+    save_db(db)
+
+
+# -----------------------------
+#  affichage des stats
+# -----------------------------
+
+
 def read_stats():
     with open("stats.json", "r") as f:
         return json.load(f)
@@ -63,6 +123,8 @@ def read_stats():
 def stats(request: Request):
     data = read_stats()
     return templates.TemplateResponse("stats.html", {"request": request, "connections": data})
+
+
 
 # Run with: python app.py
 if __name__ == "__main__":
