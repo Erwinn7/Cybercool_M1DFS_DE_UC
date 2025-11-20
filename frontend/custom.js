@@ -29,22 +29,21 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 window.addEventListener('load', function() {
-    // Vérifier si le scan a déjà été fait pendant cette session
+    // Regarder si l'URL contient 'support=QRcode'
+    const urlParams = new URLSearchParams(window.location.search);
+    let support = 'url'
+    if (urlParams.get('support') === 'qrcode') {
+        support = 'qrcode';
+    }
+
     if (!sessionStorage.getItem('scanDone')) {
         fetch('http://127.0.0.1:8000/scan', { 
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify({ support: support })
         })
-        .then(r => { 
-            console.log('scan response', r); 
-            return r.json(); 
-        })
-        .then(data => {
-            console.log('Scan comptabilisé:', data);
-            sessionStorage.setItem('scanDone', 'true');
-        })
-        .catch(e => console.error('Erreur scan:', e));
     }
+    sessionStorage.setItem('scanDone', 'true');
 });

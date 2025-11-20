@@ -10,9 +10,21 @@ import re
 
 """
 stats.json : 
-{    "count_scan": 0,
+{    
+    "count_scan": 0,
     "count_form_login": 0,
-    "count_form_login_verified": 0}
+    "count_form_login_verified": 0
+}
+
+visits.json :
+{
+    "loginTime": [
+    ],
+    "scanTimeQr": [
+    ],
+    "scanTimeUrl": [
+    ]
+}
 """
 
 # App metadata
@@ -124,15 +136,33 @@ async def login(username: str = Form(...), password: str = Form(...)):
         return {"message": "Login successful"}
 
 @app.post("/scan")
-def scan():
+async def scan(request: Request, support: str = Form(None)):
     try:
+        # Support peut venir soit en JSON (application/json) soit en form-data
+        content_type = request.headers.get("content-type", "")
+        if content_type.startswith("application/json"):
+            body = await request.json()
+            support_val: str = body.get("support")
+        else:
+            support_val: str = support
+
+        with open("visits.json", "r") as f:
+            visits_data = json.load(f)
+        timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        if support_val.lower() == "qrcode":
+            visits_data.setdefault("scanTimeQr", []).append(timestamp)
+        else:
+            visits_data.setdefault("scanTimeUrl", []).append(timestamp)
+        with open("visits.json", "w") as f:
+            json.dump(visits_data, f, indent=4)
+            
         increment_json_counter("stats.json", "count_scan", 1)
     except HTTPException:
         raise
     except Exception:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-# Run with: python app.py
+# python app.py
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))
     uvicorn.run("app:app", host="127.0.0.1", port=port, reload=True)
