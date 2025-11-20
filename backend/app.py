@@ -1,10 +1,11 @@
+import datetime
+import json
 import os
 import logging
 from typing import Optional
 from fastapi import FastAPI, HTTPException, Request, status, Form
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-import json
 import re
 
 """
@@ -50,33 +51,74 @@ def verify_password(password: str, username: Optional[str] = None) -> bool:
         return False
     return True
 
+LOG_FILE = "visits.json"
+
+def load_db():
+    if not os.path.exists(LOG_FILE):
+        empty = {"loginTime": []}
+        with open(LOG_FILE, "w") as f:
+            json.dump(empty, f, indent=4)
+        return empty
+
+    with open(LOG_FILE, "r") as f:
+        return json.load(f)
+    
+def save_db(data):
+    with open(LOG_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+
+def login_time(): # Par défaut QR
+    """
+    source = "qr" or "direct"
+    """
+    db = load_db()
+
+    timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
+   
+    db.setdefault("loginTime", []).append(timestamp)
+    save_db(db)
+
+# Fonction modulaire pour incrémenter un compteur dans un JSON
+def increment_json_counter(filepath: str, key: str, amount: int = 1):
+    try:
+        if not os.path.exists(filepath):
+            # créer un fichier vide si nécessaire
+            with open(filepath, "w") as f:
+                json.dump({}, f)
+        with open(filepath, "r") as f:
+            data = json.load(f)
+        if not isinstance(data, dict):
+            data = {}
+        data[key] = data.get(key, 0) + amount
+        with open(filepath, "w") as f:
+            json.dump(data, f)
+    except Exception:
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
 @app.post("/login")
 async def login(username: str = Form(...), password: str = Form(...)):
     try:
-        with open("stats.json", "r") as f:
-            stats = json.load(f)
-        stats["count_form_login"] += 1
-        with open("stats.json", "w") as f:
-            json.dump(stats, f)
+        increment_json_counter("stats.json", "count_form_login", 1)
         print("stats updated")
-    except Exception as e:
+    except HTTPException:
+        raise
+    except Exception:
         raise HTTPException(status_code=500, detail="Internal Server Error")
     
     try:
         if verify_username(username) and verify_password(password, username):
             print("tout ok")
+            login_time()
             try:
-                with open("stats.json", "r") as f:
-                    stats = json.load(f)
-                stats["count_form_login_verified"] += 1
-                with open("stats.json", "w") as f:
-                    json.dump(stats, f)
+                increment_json_counter("stats.json", "count_form_login_verified", 1)
                 print("stats vérifié updated")
-            except Exception as e:
+            except HTTPException:
+                raise
+            except Exception:
                 raise HTTPException(status_code=500, detail="Internal Server Error")
         else:
             print("username ou mdp pas ok")
-    except Exception as e:
+    except Exception:
         print("username ou mdp pas ok")
     finally:
         return {"message": "Login successful"}
@@ -84,13 +126,10 @@ async def login(username: str = Form(...), password: str = Form(...)):
 @app.post("/scan")
 def scan():
     try:
-        with open("stats.json", "r") as f:
-            stats = json.load(f)
-        stats["count_scan"] += 1
-        with open("stats.json", "w") as f:
-            json.dump(stats, f)
-        return {"message": "Scan counted"}
-    except Exception as e:
+        increment_json_counter("stats.json", "count_scan", 1)
+    except HTTPException:
+        raise
+    except Exception:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 # Run with: python app.py
