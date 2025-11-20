@@ -1,3 +1,27 @@
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.pyc
+
+# Virtual environments
+venv/
+.env/
+env/
 ./portailWifiEnv
 *.pyc
-__pycache__/    
+
+# IDE folders
+.vscode/
+.idea/
+
+# Byte-compiled files
+*.so
+
+# FastAPI/Uvicorn logs (if you have any)
+*.log
+
+logins.json
