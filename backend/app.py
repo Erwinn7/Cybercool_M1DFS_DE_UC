@@ -1,3 +1,5 @@
+import datetime
+import json
 import os
 import logging
 from typing import Optional
@@ -8,6 +10,9 @@ import uvicorn
 
 # App metadata
 app = FastAPI()
+
+
+LOG_FILE = "login_times.json"
 
 # Configure CORS
 app.add_middleware(
@@ -22,7 +27,28 @@ app.add_middleware(
 async def login(username: str = Form(...), password: str = Form(...)):
     print(f"Received login attempt for user: {username}, password: {password}")
     # Ici vous pouvez ajouter votre logique d'authentification
+
+    log_login_time()
     return {"message": "Login successful", "username": username}
+
+
+def log_login_time():
+    timestamp = datetime.datetime.now(datetime.UTC).isoformat()
+
+    # If file doesn't exist, create it
+    if not os.path.exists(LOG_FILE):
+        with open(LOG_FILE, "w") as f:
+            json.dump({"logins": []}, f, indent=4)
+
+    # Load existing data
+    with open(LOG_FILE, "r") as f:
+        data = json.load(f)
+
+    data["logins"].append(timestamp)
+
+    # Write updated data
+    with open(LOG_FILE, "w") as f:
+        json.dump(data, f, indent=4)
 
 
 # Run with: python app.py
