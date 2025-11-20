@@ -1,7 +1,7 @@
 import os
 import logging
 from typing import Optional
-from fastapi import FastAPI, HTTPException, Request, status
+from fastapi import FastAPI, HTTPException, Request, status, Form
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
@@ -9,13 +9,20 @@ import uvicorn
 # App metadata
 app = FastAPI()
 
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # En production, spécifiez les domaines autorisés
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.post("/login")
-async def login(request: Request):
-    data = await request.json()
-    username = data.get("username")
-    password = data.get("password")
-    print(f"Received login attempt for user: {username}, {password}")
-    return {"message": "Login successful"}
+async def login(username: str = Form(...), password: str = Form(...)):
+    print(f"Received login attempt for user: {username}, password: {password}")
+    # Ici vous pouvez ajouter votre logique d'authentification
+    return {"message": "Login successful", "username": username}
 
 
 # Run with: python app.py
