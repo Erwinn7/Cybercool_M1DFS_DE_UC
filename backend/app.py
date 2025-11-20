@@ -12,7 +12,9 @@ import uvicorn
 app = FastAPI()
 
 
-LOG_FILE = "login_times.json"
+LOG_FILE = "visits.json"   # database
+COOKIE_QR = "visited_qr"
+COOKIE_DIRECT = "visited_direct"
 
 # Configure CORS
 app.add_middleware(
@@ -28,14 +30,36 @@ async def login(username: str = Form(...), password: str = Form(...)):
     print(f"Received login attempt for user: {username}, password: {password}")
     # Ici vous pouvez ajouter votre logique d'authentification
 
-    log_login_time()
+    log_visit()
     return {"message": "Login successful", "username": username}
 
+
+# -----------------------------
+#  Load / Save JSON database
+# -----------------------------
+
+def load_db():
+    if not os.path.exists(LOG_FILE):
+        empty = {"loginQR": [], "loginDirect": []}
+        with open(LOG_FILE, "w") as f:
+            json.dump(empty, f, indent=4)
+        return empty
+
+    with open(LOG_FILE, "r") as f:
+        return json.load(f)
+    
+def save_db(data):
+    with open(LOG_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+
+# -----------------------------
+#  Fonctions pour log les visites
+# -----------------------------
 
 def log_login_time():
     timestamp = datetime.datetime.now(datetime.UTC).isoformat()
 
-    # If file doesn't exist, create it
+    # Si le fichier n'existe pas, le créer
     if not os.path.exists(LOG_FILE):
         with open(LOG_FILE, "w") as f:
             json.dump({"logins": []}, f, indent=4)
@@ -49,6 +73,21 @@ def log_login_time():
     # Write updated data
     with open(LOG_FILE, "w") as f:
         json.dump(data, f, indent=4)
+
+def log_visit(source: str = 'qr'): # Par défaut QR
+    """
+    source = "qr" or "direct"
+    """
+    db = load_db()
+
+    timestamp = datetime.datetime.now(datetime.UTC).isoformat()
+
+    if source == "qr":
+        db["loginQR"].append(timestamp)
+    elif source == "direct":
+        db["loginDirect"].append(timestamp)
+
+    save_db(db)
 
 
 # Run with: python app.py
