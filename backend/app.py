@@ -115,18 +115,15 @@ def increment_json_counter(filepath: str, key: str, amount: int = 1):
 async def login(username: str = Form(...), password: str = Form(...)):
     try:
         increment_json_counter("stats.json", "count_form_login", 1)
-        print("stats updated")
     except HTTPException:
         raise
     except Exception:
         raise HTTPException(status_code=500, detail="Internal Server Error")
     
     if verify_username(username) and verify_password(password, username):
-        print("tout ok")
         login_time()
         try:
             increment_json_counter("stats.json", "count_form_login_verified", 1)
-            print("stats vérifié updated")
         except HTTPException:
             raise
         except Exception:
@@ -166,8 +163,6 @@ async def stats():
             dataStats = json.load(f)
         with open("visits.json", 'r') as f:
             dataVisits = json.load(f)
-        print("datastats:\n", dataStats)
-        print("datavisits:\n", dataVisits)
         return {
             "dataStats": dataStats,
             "dataVisits": dataVisits
