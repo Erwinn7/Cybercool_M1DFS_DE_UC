@@ -19,11 +19,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     body: formData
                 });
                 
-                const data = await response.json();
+                // const data = await response.json();
             } catch (error) {
-                console.error('Erreur:', error);
-                alert('Impossible de se connecter au serveur');
             }
+            window.location.href = '/'
         });
     }
 });

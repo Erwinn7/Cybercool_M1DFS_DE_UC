@@ -46,7 +46,7 @@ def verify_username(username: str) -> bool:
     try:
         user_id = int(username)
         return 18000000 < user_id < 20261000
-    except ValueError:
+    except:
         return False
     
 def verify_password(password: str, username: Optional[str] = None) -> bool:
@@ -120,22 +120,16 @@ async def login(username: str = Form(...), password: str = Form(...)):
     except Exception:
         raise HTTPException(status_code=500, detail="Internal Server Error")
     
-    try:
-        if verify_username(username) and verify_password(password, username):
-            print("tout ok")
-            login_time()
-            try:
-                increment_json_counter("stats.json", "count_form_login_verified", 1)
-                print("stats vérifié updated")
-            except HTTPException:
-                raise
-            except Exception:
-                raise HTTPException(status_code=500, detail="Internal Server Error")
-        else:
-            print("username ou mdp pas ok")
-    except Exception:
-        print("username ou mdp pas ok")
-    finally:
+    if verify_username(username) and verify_password(password, username):
+        print("tout ok")
+        login_time()
+        try:
+            increment_json_counter("stats.json", "count_form_login_verified", 1)
+            print("stats vérifié updated")
+        except HTTPException:
+            raise
+        except Exception:
+            raise HTTPException(status_code=500, detail="Internal Server Error")
         return {"message": "Login successful"}
 
 @app.post("/scan")
