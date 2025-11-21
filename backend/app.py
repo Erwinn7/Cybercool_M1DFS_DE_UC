@@ -30,6 +30,9 @@ visits.json :
 # App metadata
 app = FastAPI()
 
+
+LOG_FILE = "login_times.json"
+
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
