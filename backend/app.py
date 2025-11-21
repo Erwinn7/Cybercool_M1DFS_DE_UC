@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import random
 import logging
 from typing import Optional
 from fastapi import FastAPI, HTTPException, Request, status, Form
@@ -153,11 +154,27 @@ async def scan(request: Request, support: str = Form(None)):
         with open("visits.json", "w") as f:
             json.dump(visits_data, f, indent=4)
             
-        increment_json_counter("stats.json", "count_scan", 1)
     except HTTPException:
         raise
     except Exception:
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+@app.get("/stats")
+async def stats():
+    try:
+        with open("stats.json", "r") as f:
+            dataStats = json.load(f)
+        with open("visits.json", 'r') as f:
+            dataVisits = json.load(f)
+        print("datastats:\n", dataStats)
+        print("datavisits:\n", dataVisits)
+        return {
+            "dataStats": dataStats,
+            "dataVisits": dataVisits
+        }
+    except Exception:
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+    
 
 # python app.py
 if __name__ == "__main__":

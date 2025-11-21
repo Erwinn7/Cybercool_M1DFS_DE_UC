@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // const data = await response.json();
             } catch (error) {
             }
-            window.location.href = '/'
+            // window.location.href = '/'
         });
     }
 });

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistiques</title>
+    <link rel="stylesheet" href="stats.css">
+</head>
+<body>
+    <main>
+        <h1>Tableau de bord des statistiques</h1>
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <h3>Scans QR Code</h3>
+                <p id="countScanQr" class="kpi-number">0</p>
+            </div>
+            <div class="kpi-card">
+                <h3>Scans URL</h3>
+                <p id="countScanUrl" class="kpi-number">0</p>
+            </div>
+            <div class="kpi-card">
+                <h3>Total Scans</h3>
+                <p id="countTotalScans" class="kpi-number">0</p>
+            </div>
+            <div class="kpi-card">
+                <h3>Tentatives de connexion</h3>
+                <p id="countFormLogin" class="kpi-number">0</p>
+            </div>
+            <div class="kpi-card">
+                <h3>Connexions au bon format</h3>
+                <p id="countFormLoginVerified" class="kpi-number">0</p>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-wrapper">
+                <h2>Connexions par heure</h2>
+                <canvas id="loginChart"></canvas>
+            </div>
+            <div class="chart-wrapper">
+                <h2>Scans par heure (QR vs URL)</h2>
+                <canvas id="scanChart"></canvas>
+            </div>
+            <div class="chart-wrapper">
+                <h2>Chronologie des connexions</h2>
+                <canvas id="loginTimelineChart"></canvas>
+            </div>
+            <div class="chart-wrapper">
+                <h2>Chronologie des scans</h2>
+                <canvas id="scanTimelineChart"></canvas>
+            </div>
+        </div>
+    </main>
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js">
+    </script>
+<script type="text/javascript" src="stats.js"></script>
+</body>
+</html>
