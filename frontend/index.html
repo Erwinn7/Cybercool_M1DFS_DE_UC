@@ -443,7 +443,7 @@
                     });
                 $(document).ready(function () {
                     $("#fm1").submit(function () {
-                        $(":submit").attr("disabled", true);
+                        //$(":submit").attr("disabled", true);
                         $(":submit").attr("value", i);
                         return true;
                     });
@@ -464,16 +464,122 @@
             </span>
         </div>
    
-    <br><div class="justify-content-center  flex-column mdc-card mdc-card-content card flex-grow-1" style="padding: 20px">
+    <br>
+    
+    <div class="justify-content-center  flex-column mdc-card mdc-card-content card flex-grow-1" style="padding: 20px">
         
-         <div id="nouvel_arrivant"></div> 
-         </div> <br><div class="justify-content-center  flex-column mdc-card mdc-card-content card flex-grow-1" style="padding: 20px">
+         <div id="nouvel_arrivant"><span style="color: #ff5522;">&gt; Vous êtes nouvel arrivant à l'Università di Corsica, pour activer votre compte</span>&nbsp;&nbsp;&nbsp;<a href="https://activation.universita.corsica/guichet_activation_reset_compte-front.php?acces=ok&amp;profil=&amp;id_site=0&amp;type=activation" class="bouton"><span class="mdc-button__label">cliquez ici</span></a></div> 
+    </div>
+<br>
+    <div class="justify-content-center  flex-column mdc-card mdc-card-content card flex-grow-1" style="padding: 20px">
         
-          
-         <div id="autres"></div>     
+<div id="autres"><span style="color: #ff5522;">&gt; Vous êtes extérieur, pour vous connecter</span>&nbsp;&nbsp;&nbsp;<a href="https://portailweb.universita.corsica/plugins/auth/auth_externe/auth_externe.php?id_site=0&amp;lang=fr&amp;service=auth_externe&amp;url_appli=https://portail.universita.corsica" class="bouton"><span class="mdc-button__label">cliquez ici</span></a></div>     
    
-        <!-- <br><a href="https://portailweb.universita.corsica/plugins/auth/auth_externe/auth_externe.php?id_site=&lang=fr&service=auth_externe" name="autres" id="autres" style="color:#ff5522;text-decoration: none;">> Dans tous les autres cas, cliquez ici</a>
---><script type="text/javascript">
+<script type="text/javascript">
+	
+		// FONCTIONS
+	   var  str;
+        var lang;     
+        var lang_autres; 
+         var id_site;
+               var id_cours;
+               var id_locale;
+               var url_appli;
+     var lang_etu_pers_vacataires;            
+		function getURLParams()
+		{
+			var url = document.location.href.split("?");
+			
+			if(url.length > 1)
+			{
+				// Params found un URL !
+				var get = new Object;
+				var params = url[1].split("&");
+
+				for(var i in params)
+				{
+					var tmp = params[i].split("=");
+					get[tmp[0]] = unescape(tmp[1].replace("+", " "));
+				}
+				
+				// Return Object (data are accessible in array too) : get["paramname"] = get.paramname
+				return get;
+			}
+			
+			// No params found in URL !
+			return false;
+		}
+		
+		function isset(data)
+		{
+			if(typeof(data) == "undefined")
+				return false;
+			
+			return true;
+		}
+		
+		// CODE DE TEST
+		
+		$_GET = getURLParams();
+		       
+		//if(isset($_GET.locale))
+		//	document.write($_GET.locale + "<br />");
+       // alert($_GET.locale);
+if(!isset($_GET.url_appli)){
+    url_appli="https://portail.universita.corsica";
+}else{
+    url_appli=$_GET.url_appli;
+}                
+if(!isset($_GET.locale)){
+    id_locale="fr";
+}else{
+    id_locale=$_GET.locale;
+}               
+if(!isset($_GET.id_site)){
+    id_site=0;
+}else{
+    id_site=$_GET.id_site;
+}
+if(!isset($_GET.id_cours)){
+    id_cours=0;
+}else{
+    id_cours=$_GET.id_cours;
+}               
+	
+           if(isset($_GET.id_cours)){ 
+   str="https://portailweb.universita.corsica/plugins/auth/auth_externe/auth_externe.php?id_cours="+id_cours+"&lang="+id_locale+"&service=auth_externe&url_appli="+url_appli; 
+   
+           // document.getElementById('autres').innerHTML = '<a href="'+str+'">> Dans tous les autres cas, cliquez ici</a>'; 
+           }else{
+    str="https://portailweb.universita.corsica/plugins/auth/auth_externe/auth_externe.php?id_site="+id_site+"&lang="+id_locale+"&service=auth_externe&url_appli="+url_appli;        
+	  
+               
+   } 
+           
+   str_nouvel_arrivant="https://activation.universita.corsica/guichet_activation_reset_compte-front.php?acces=ok&profil=&id_site="+id_site+"&type=activation";     
+             //  alert(str);
+//			document.write($_GET.url_appli + "<br />");
+      
+         if(id_locale=='fr'){
+             lang='> Vous êtes extérieur, pour vous connecter';
+             lang_autres='cliquez ici';
+             lang_etu_pers_vacataires='> Vous êtes étudiant, personnel, vacataire ou ALUMNI de l\'Università di Corsica';
+             lang_nouvel_arrivant='> Vous êtes nouvel arrivant à l\'Università di Corsica, pour activer votre compte';
+         }else{
+             lang='> You are outside, for login';
+             lang_autres='click here';
+             lang_etu_pers_vacataires='> You are a student, staff, temporary worker or ALUMNI of the Università di Corsica';
+             lang_nouvel_arrivant='> You are a new arrival of the Università di Corsica, for activate your account';
+         }
+               
+         document.getElementById('etu_pers_vacataires').innerHTML = '<span style="color: #ff5522;"> '+lang_etu_pers_vacataires+'</span>';
+        document.getElementById('nouvel_arrivant').innerHTML = '<span style="color: #ff5522;">'+lang_nouvel_arrivant+'</span>&nbsp;&nbsp;&nbsp;<a href="'+str_nouvel_arrivant+'" class="bouton"><span class="mdc-button__label">'+lang_autres+'</a></div>';     
+         document.getElementById('autres').innerHTML = '<span style="color: #ff5522;">'+lang+'</span>&nbsp;&nbsp;&nbsp;<a href="'+str+'" class="bouton"><span class="mdc-button__label">'+lang_autres+'</a></div>';
+		
+	</script>  
+    <br></div>
+
+<script type="text/javascript">
 	
 		// FONCTIONS
 	   var  str;

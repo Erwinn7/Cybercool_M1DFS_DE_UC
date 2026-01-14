@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Validation du mot de passe
             const password = document.getElementById('password').value;
-            const pwdRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+            const pwdRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{10,}$/;
             if (!pwdRegex.test(password)) {
                 const panel = document.getElementById('loginErrorsPanel');
                 if (panel) {
@@ -31,6 +31,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                     // const data = await response.json();
                 } catch (error) {
+                    console.error('fetch error:', error);
+
                 }
             }
             
