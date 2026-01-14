@@ -20,9 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         body: errorData
                     });
                 } catch (e) {
-                    console.error('Error logging failed attempt:', e);
                 }
-                console.log('login error');
 
                 const panel = document.getElementById('loginErrorsPanel');
                 if (panel) {
@@ -51,12 +49,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         method: 'POST',
                         body: formData
                     });
-                    console.log(response)
                     if (response.status === 200) {
                         window.location.href = 'avertissement.html';
                     }
                     else {
-                        console.log('login not verified');
                         const panel = document.getElementById('loginErrorsPanel');
                         if (panel) {
                             panel.style.display = 'block';
