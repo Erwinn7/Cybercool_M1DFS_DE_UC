@@ -1,38 +1,26 @@
 import datetime
-import json
 import os
-import random
-import logging
 from typing import Optional
-from fastapi import FastAPI, HTTPException, Request, status, Form
+from fastapi import FastAPI, HTTPException, Request, Form
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-import re
+from dotenv import load_dotenv
+from supabase import create_client, Client
 
-"""
-stats.json : 
-{    
-    "count_scan": 0,
-    "count_form_login": 0,
-    "count_form_login_verified": 0
-}
+# Charger les variables d'environnement
+load_dotenv()
 
-visits.json :
-{
-    "loginTime": [
-    ],
-    "scanTimeQr": [
-    ],
-    "scanTimeUrl": [
-    ]
-}
-"""
+# Configuration Supabase
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise ValueError("SUPABASE_URL et SUPABASE_KEY doivent être définis dans le fichier .env")
+
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # App metadata
 app = FastAPI()
-
-
-LOG_FILE = "login_times.json"
 
 # Configure CORS
 app.add_middleware(
@@ -43,87 +31,74 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 def verify_username(username: str) -> bool:
+    """Vérifie si le username est un numéro étudiant valide"""
     try:
         user_id = int(username)
         return 18000000 < user_id < 20271000
     except:
         return False
-    
-LOG_FILE = "visits.json"
 
-def load_db():
-    if not os.path.exists(LOG_FILE):
-        empty = {"loginTime": [], "loginTimeVerified": []}
-        with open(LOG_FILE, "w") as f:
-            json.dump(empty, f, indent=4)
-        return empty
 
-    with open(LOG_FILE, "r") as f:
-        return json.load(f)
-    
-def save_db(data):
-    with open(LOG_FILE, "w") as f:
-        json.dump(data, f, indent=4)
-
-def login_time():
+def add_event(event_type: str):
     """
-    Enregistre le timestamp de chaque tentative de connexion
+    Ajoute un événement dans la table events avec le timestamp actuel
+    event_type: 'loginTime', 'loginTimeVerified', 'scanTimeQr', 'scanTimeUrl'
     """
-    db = load_db()
-    timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
-    db.setdefault("loginTime", []).append(timestamp)
-    save_db(db)
-
-def login_time_verified():
-    """
-    Enregistre le timestamp des connexions avec username au bon format
-    """
-    db = load_db()
-    timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
-    db.setdefault("loginTimeVerified", []).append(timestamp)
-    save_db(db)
-
-# Fonction modulaire pour incrémenter un compteur dans un JSON
-def increment_json_counter(filepath: str, key: str, amount: int = 1):
     try:
-        if not os.path.exists(filepath):
-            # créer un fichier vide si nécessaire
-            with open(filepath, "w") as f:
-                json.dump({}, f)
-        with open(filepath, "r") as f:
-            data = json.load(f)
-        if not isinstance(data, dict):
-            data = {}
-        data[key] = data.get(key, 0) + amount
-        with open(filepath, "w") as f:
-            json.dump(data, f)
-    except Exception:
-        pass
+        supabase.table("events").insert({
+            "event_type": event_type,
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
+        }).execute()
+    except Exception as e:
+        print(f"Erreur lors de l'ajout de l'événement: {e}")
+
+
+def increment_stat(key: str, amount: int = 1):
+    """
+    Incrémente un compteur dans la table stats
+    key: 'count_form_login' ou 'count_form_login_verified'
+    """
+    try:
+        # Récupérer la valeur actuelle
+        result = supabase.table("stats").select("value").eq("key", key).single().execute()
+        current_value = result.data.get("value", 0) if result.data else 0
+        
+        # Mettre à jour avec la nouvelle valeur
+        supabase.table("stats").update({
+            "value": current_value + amount
+        }).eq("key", key).execute()
+    except Exception as e:
+        print(f"Erreur lors de l'incrémentation du compteur: {e}")
+
 
 @app.post("/login")
 async def login(username: str = Form(...)):
+    """Endpoint de connexion"""
     try:
-        increment_json_counter("stats.json", "count_form_login", 1)
-        login_time()  # Enregistre toutes les tentatives
-    except Exception:
-        pass
+        increment_stat("count_form_login", 1)
+        add_event("loginTime")
+    except Exception as e:
+        print(f"Erreur: {e}")
     
     if verify_username(username):
         print("Login verified")
-        login_time_verified()  # Enregistre les connexions au bon format
+        add_event("loginTimeVerified")
         try:
-            increment_json_counter("stats.json", "count_form_login_verified", 1)
-        except Exception:
-            pass
+            increment_stat("count_form_login_verified", 1)
+        except Exception as e:
+            print(f"Erreur: {e}")
     else:
         raise HTTPException(status_code=400, detail="Login not verified")
-    return HTTPException(status_code=200, detail="Login verified")
+    
+    return {"status": 200, "detail": "Login verified"}
+
 
 @app.post("/scan")
 async def scan(request: Request, support: str = Form(None)):
+    """Endpoint pour enregistrer les scans QR/URL"""
     try:
-        # Support peut venir soit en JSON (application/json) soit en form-data
         content_type = request.headers.get("content-type", "")
         if content_type.startswith("application/json"):
             body = await request.json()
@@ -131,35 +106,99 @@ async def scan(request: Request, support: str = Form(None)):
         else:
             support_val: str = support
 
-        with open("visits.json", "r") as f:
-            visits_data = json.load(f)
-        timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
-        if support_val.lower() == "qrcode":
-            visits_data.setdefault("scanTimeQr", []).append(timestamp)
+        if support_val and support_val.lower() == "qrcode":
+            add_event("scanTimeQr")
         else:
-            visits_data.setdefault("scanTimeUrl", []).append(timestamp)
-        with open("visits.json", "w") as f:
-            json.dump(visits_data, f, indent=4)
+            add_event("scanTimeUrl")
             
-    except Exception:
-        pass
+        return {"status": 200, "detail": "Scan recorded"}
+    except Exception as e:
+        print(f"Erreur: {e}")
+        raise HTTPException(status_code=500, detail="Erreur lors de l'enregistrement du scan")
+
+
+@app.post("/link_click")
+async def link_click(request: Request, link_name: str = Form(None)):
+    """Endpoint pour enregistrer les clics sur les liens d'apprentissage"""
+    try:
+        content_type = request.headers.get("content-type", "")
+        if content_type.startswith("application/json"):
+            body = await request.json()
+            link_name_val: str = body.get("link_name", "unknown")
+        else:
+            link_name_val: str = link_name or "unknown"
+
+        # Incrémenter le compteur global de clics
+        increment_stat("count_visite_links", 1)
+        
+        # Enregistrer l'événement avec les métadonnées du lien
+        try:
+            supabase.table("events").insert({
+                "event_type": "linkClick",
+                "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                "metadata": {"link_name": link_name_val}
+            }).execute()
+        except Exception as e:
+            # Si la colonne metadata n'existe pas, enregistrer sans
+            print(f"Erreur metadata (normal si colonne non créée): {e}")
+            add_event("linkClick")
+            
+        return {"status": 200, "detail": "Link click recorded"}
+    except Exception as e:
+        print(f"Erreur: {e}")
+        raise HTTPException(status_code=500, detail="Erreur lors de l'enregistrement du clic")
+
 
 @app.get("/stats")
 async def stats():
+    """Récupère toutes les statistiques pour le dashboard"""
     try:
-        with open("stats.json", "r") as f:
-            dataStats = json.load(f)
-        with open("visits.json", 'r') as f:
-            dataVisits = json.load(f)
-        return {
-            "dataStats": dataStats,
-            "dataVisits": dataVisits
+        # Récupérer les compteurs
+        stats_result = supabase.table("stats").select("key, value").execute()
+        stats_dict = {item["key"]: item["value"] for item in stats_result.data}
+        
+        # Récupérer tous les événements
+        events_result = supabase.table("events").select("event_type, timestamp, metadata").order("timestamp").execute()
+        
+        # Organiser les événements par type
+        events_by_type = {
+            "loginTime": [],
+            "loginTimeVerified": [],
+            "scanTimeQr": [],
+            "scanTimeUrl": [],
+            "linkClick": []
         }
-    except Exception:
-        pass
-    
+        
+        # Liste pour stocker les détails des clics par lien
+        link_clicks_details = []
+        
+        for event in events_result.data:
+            event_type = event["event_type"]
+            if event_type in events_by_type:
+                events_by_type[event_type].append(event["timestamp"])
+                
+                # Si c'est un clic sur un lien, stocker aussi les métadonnées
+                if event_type == "linkClick" and event.get("metadata"):
+                    link_clicks_details.append({
+                        "timestamp": event["timestamp"],
+                        "link_name": event["metadata"].get("link_name", "unknown")
+                    })
+        
+        return {
+            "dataStats": {
+                "count_form_login": stats_dict.get("count_form_login", 0),
+                "count_form_login_verified": stats_dict.get("count_form_login_verified", 0),
+                "count_visite_links": stats_dict.get("count_visite_links", 0)
+            },
+            "dataVisits": events_by_type,
+            "linkClicksDetails": link_clicks_details
+        }
+    except Exception as e:
+        print(f"Erreur lors de la récupération des stats: {e}")
+        raise HTTPException(status_code=500, detail="Erreur lors de la récupération des statistiques")
+
 
 # python app.py
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))
-    uvicorn.run("app:app", host="127.0.0.1", port=port, reload=True)
+    uvicorn.run("app:app", host="127.0.0.1", port=port, reload=False)

@@ -1,9 +1,31 @@
 /**
  * script.js - Interactions pour la page de sensibilisation cybersécurité
- * Gestion des vidéos cliquables
+ * Gestion des vidéos cliquables et tracking des clics d'apprentissage
  */
 
 console.log("Page de sensibilisation cybersécurité - Chargement réussi");
+
+// ===== CONFIGURATION API =====
+const API_BASE_URL = 'http://127.0.0.1:8000';
+
+/**
+ * Enregistre un clic sur un lien d'apprentissage
+ * @param {string} linkName - Nom/identifiant du lien cliqué
+ */
+async function trackLinkClick(linkName) {
+    try {
+        await fetch(`${API_BASE_URL}/link_click`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ link_name: linkName })
+        });
+        console.log(`[Tracking] Clic enregistré: ${linkName}`);
+    } catch (error) {
+        console.error('[Tracking] Erreur lors de l\'enregistrement du clic:', error);
+    }
+}
 
 // Attendre que le DOM soit complètement chargé
 document.addEventListener('DOMContentLoaded', function() {
@@ -11,15 +33,19 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===== VIDÉOS CLIQUABLES =====
     const videoPreviews = document.querySelectorAll('.video-preview');
     
-    videoPreviews.forEach(preview => {
+    videoPreviews.forEach((preview, index) => {
         // Récupérer l'URL de la vidéo depuis l'attribut data
         const videoUrl = preview.getAttribute('data-video-url');
+        const videoName = `video_${index + 1}`;
         
         // Si une URL est définie, rendre la prévisualisation cliquable
         if (videoUrl && videoUrl !== '#') {
             preview.addEventListener('click', function(e) {
                 // Empêcher le clic de se propager
                 e.preventDefault();
+                
+                // Tracker le clic
+                trackLinkClick(videoName);
                 
                 // Ouvrir la vidéo dans un nouvel onglet
                 window.open(videoUrl, '_blank', 'noopener,noreferrer');
@@ -63,9 +89,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===== LIENS VIDÉO EXTERNES =====
     const videoLinks = document.querySelectorAll('.video-external-link');
     
-    videoLinks.forEach(link => {
+    videoLinks.forEach((link, index) => {
         link.addEventListener('click', function(e) {
             const linkText = this.textContent.trim();
+            
+            // Tracker le clic sur le lien YouTube externe
+            trackLinkClick(`youtube_link_${index + 1}`);
+            
             console.log(`[Pédagogie] Ouverture du lien vidéo: ${linkText}`);
         });
     });
@@ -75,6 +105,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (ansiiLink) {
         ansiiLink.addEventListener('click', function() {
+            // Tracker le clic sur le lien ANSSI
+            trackLinkClick('anssi_official');
+            
             console.log('[Ressource] Ouverture du site officiel de l\'ANSSI');
         });
     }

@@ -27,3 +27,5 @@ portailWifiEnv/
 
 # Database files
 logins.json
+
+.env

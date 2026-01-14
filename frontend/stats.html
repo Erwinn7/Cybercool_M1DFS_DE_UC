@@ -32,6 +32,10 @@
                 <h3>Connexions au bon format</h3>
                 <p id="countFormLoginVerified" class="kpi-number">0</p>
             </div>
+            <div class="kpi-card highlight-card">
+                <h3>Clics Liens Apprentissage</h3>
+                <p id="countLinkClicks" class="kpi-number">0</p>
+            </div>
         </div>
 
         <div class="chart-grid">
@@ -44,12 +48,24 @@
                 <canvas id="scanChart"></canvas>
             </div>
             <div class="chart-wrapper">
+                <h2>Clics sur liens d'apprentissage par heure</h2>
+                <canvas id="linkClickChart"></canvas>
+            </div>
+            <div class="chart-wrapper">
+                <h2>Clics par type de lien</h2>
+                <canvas id="linkTypeChart"></canvas>
+            </div>
+            <div class="chart-wrapper">
                 <h2>Chronologie des connexions (Tentatives vs Vérifiées)</h2>
                 <canvas id="loginTimelineChart"></canvas>
             </div>
             <div class="chart-wrapper">
                 <h2>Chronologie des scans</h2>
                 <canvas id="scanTimelineChart"></canvas>
+            </div>
+            <div class="chart-wrapper">
+                <h2>Chronologie des clics d'apprentissage</h2>
+                <canvas id="linkClickTimelineChart"></canvas>
             </div>
         </div>
     </main>

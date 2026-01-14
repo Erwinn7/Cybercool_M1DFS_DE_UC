@@ -5,6 +5,7 @@ let bucketsLogin = null
 let bucketsLoginVerified = null
 let bucketsScanQr = null
 let bucketsScanUrl = null
+let bucketsLinkClick = null
 
 function bucketByHour(arr) {
     const map = new Map();
@@ -38,6 +39,20 @@ function bucketByHourOfDay(arr) {
     return hourlyCounts;
 }
 
+function countByLinkName(linkClicksDetails) {
+    const counts = {};
+    if (!linkClicksDetails || linkClicksDetails.length === 0) {
+        return counts;
+    }
+
+    linkClicksDetails.forEach(click => {
+        const name = click.link_name || 'unknown';
+        counts[name] = (counts[name] || 0) + 1;
+    });
+
+    return counts;
+}
+
 function generateHourlyLabels(startDate, endDate) {
     const labels = [];
     let currentDate = new Date(startDate);
@@ -65,6 +80,20 @@ function animateValue(element, start, end, duration) {
     window.requestAnimationFrame(step);
 }
 
+// Couleurs pour les types de liens
+const linkColors = {
+    'video_1': 'rgba(231, 76, 60, 0.8)',
+    'video_2': 'rgba(155, 89, 182, 0.8)',
+    'youtube_link_1': 'rgba(241, 196, 15, 0.8)',
+    'youtube_link_2': 'rgba(230, 126, 34, 0.8)',
+    'anssi_official': 'rgba(46, 204, 113, 0.8)',
+    'unknown': 'rgba(149, 165, 166, 0.8)'
+};
+
+function getLinkColor(linkName) {
+    return linkColors[linkName] || `hsl(${Math.random() * 360}, 70%, 60%)`;
+}
+
 
 window.addEventListener('load', async function () {
 
@@ -86,12 +115,17 @@ window.addEventListener('load', async function () {
             const dataStats = data.dataStats
             countFormLogin = dataStats.count_form_login
             countFormLoginVerified = dataStats.count_form_login_verified
+            const countVisiteLinks = dataStats.count_visite_links || 0
 
             const dataVisits = data.dataVisits
             const loginTime = dataVisits.loginTime
             const loginTimeVerified = dataVisits.loginTimeVerified
             const scanTimeQr = dataVisits.scanTimeQr
             const scanTimeUrl = dataVisits.scanTimeUrl
+            const linkClickTime = dataVisits.linkClick || []
+
+            // Détails des clics par lien
+            const linkClicksDetails = data.linkClicksDetails || []
 
             // Animation des KPIs
             const countScanQr = scanTimeQr?.length || 0;
@@ -102,6 +136,7 @@ window.addEventListener('load', async function () {
             animateValue(document.getElementById('countTotalScans'), 0, totalScans, 1500);
             animateValue(document.getElementById('countFormLogin'), 0, countFormLogin || 0, 1500);
             animateValue(document.getElementById('countFormLoginVerified'), 0, countFormLoginVerified || 0, 1500);
+            animateValue(document.getElementById('countLinkClicks'), 0, countVisiteLinks, 1500);
 
 
 
@@ -109,11 +144,13 @@ window.addEventListener('load', async function () {
             bucketsLoginVerified = bucketByHour(loginTimeVerified);
             bucketsScanQr = bucketByHour(scanTimeQr);
             bucketsScanUrl = bucketByHour(scanTimeUrl);
+            bucketsLinkClick = bucketByHour(linkClickTime);
 
             const hourlyLogins = bucketByHourOfDay(loginTime);
             const hourlyLoginsVerified = bucketByHourOfDay(loginTimeVerified);
             const hourlyScanQr = bucketByHourOfDay(scanTimeQr);
             const hourlyScanUrl = bucketByHourOfDay(scanTimeUrl);
+            const hourlyLinkClicks = bucketByHourOfDay(linkClickTime);
 
             const hoursOfDayLabels = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}h`);
 
@@ -181,7 +218,73 @@ window.addEventListener('load', async function () {
                 }
             });
 
-            // --- GRAPHIQUES CHRONOLOGIQUES (INCHANGÉS) ---
+            // Chart pour les clics sur liens d'apprentissage par heure
+            const linkClickCtx = document.getElementById('linkClickChart').getContext('2d');
+            new Chart(linkClickCtx, {
+                type: 'bar',
+                data: {
+                    labels: hoursOfDayLabels,
+                    datasets: [{
+                        label: 'Clics liens apprentissage',
+                        data: hourlyLinkClicks,
+                        backgroundColor: 'rgba(155, 89, 182, 0.6)',
+                        borderColor: 'rgba(155, 89, 182, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Chart doughnut pour les clics par type de lien
+            const linkTypeCounts = countByLinkName(linkClicksDetails);
+            const linkTypeLabels = Object.keys(linkTypeCounts).map(key => {
+                // Formatage des labels pour l'affichage
+                if (key === 'video_1') return '🎬 Vidéo 1 (QR Code)';
+                if (key === 'video_2') return '🎬 Vidéo 2 (Bonnes pratiques)';
+                if (key === 'youtube_link_1') return '📺 YouTube 1';
+                if (key === 'youtube_link_2') return '📺 YouTube 2';
+                if (key === 'anssi_official') return '🔒 ANSSI';
+                return key;
+            });
+            const linkTypeData = Object.values(linkTypeCounts);
+            const linkTypeColors = Object.keys(linkTypeCounts).map(key => getLinkColor(key));
+
+            const linkTypeCtx = document.getElementById('linkTypeChart').getContext('2d');
+            new Chart(linkTypeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: linkTypeLabels,
+                    datasets: [{
+                        data: linkTypeData,
+                        backgroundColor: linkTypeColors,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Répartition des clics par lien'
+                        }
+                    }
+                }
+            });
+
+            // --- GRAPHIQUES CHRONOLOGIQUES ---
 
             const startDate = new Date('2025-11-19T00:00:00.000Z');
             const endDate = new Date();
@@ -192,11 +295,13 @@ window.addEventListener('load', async function () {
             const bucketsLoginVerifiedMap = new Map(bucketsLoginVerified.map(item => [item.hour, item.count]));
             const bucketsScanQrMap = new Map(bucketsScanQr.map(item => [item.hour, item.count]));
             const bucketsScanUrlMap = new Map(bucketsScanUrl.map(item => [item.hour, item.count]));
+            const bucketsLinkClickMap = new Map(bucketsLinkClick.map(item => [item.hour, item.count]));
 
             const loginTimelineData = timelineLabels.map(hour => bucketsLoginMap.get(hour) || 0);
             const loginVerifiedTimelineData = timelineLabels.map(hour => bucketsLoginVerifiedMap.get(hour) || 0);
             const scanQrTimelineData = timelineLabels.map(hour => bucketsScanQrMap.get(hour) || 0);
             const scanUrlTimelineData = timelineLabels.map(hour => bucketsScanUrlMap.get(hour) || 0);
+            const linkClickTimelineData = timelineLabels.map(hour => bucketsLinkClickMap.get(hour) || 0);
 
             const formattedTimelineLabels = timelineLabels.map(h => new Date(h).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit' }) + 'h');
 
@@ -261,6 +366,32 @@ window.addEventListener('load', async function () {
                     }]
                 },
                 options: { scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
+
+            // Chart chronologique pour les clics d'apprentissage
+            const linkClickTimelineCtx = document.getElementById('linkClickTimelineChart').getContext('2d');
+            new Chart(linkClickTimelineCtx, {
+                type: 'line',
+                data: {
+                    labels: formattedTimelineLabels,
+                    datasets: [{
+                        label: 'Clics liens apprentissage',
+                        data: linkClickTimelineData,
+                        backgroundColor: 'rgba(155, 89, 182, 0.2)',
+                        borderColor: 'rgba(155, 89, 182, 1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
+                    }
+                }
             });
         }
 
