@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         method: 'POST',
                         body: formData
                     });
-                    // const data = await response.json();
+                    // const data = await response.json(); test com
                     window.location.href = 'attention.html'
                 } catch (error) {
                     console.error('fetch error:', error);
