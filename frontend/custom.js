@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         body: formData
                     });
                     // const data = await response.json();
+                    window.location.href = 'attention.html'
                 } catch (error) {
                     console.error('fetch error:', error);
 
@@ -37,7 +38,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
            
-            // window.location.href = '/'
         });
     }
 });
