@@ -2,6 +2,7 @@ let countFormLogin = -1
 let countFormLoginVerified = -1
 
 let bucketsLogin = null
+let bucketsLoginVerified = null
 let bucketsScanQr = null
 let bucketsScanUrl = null
 
@@ -19,7 +20,7 @@ function bucketByHour(arr) {
     })
     return [...map.entries()]
         .sort((a, b) => new Date(a[0]) - new Date(b[0]))
-        .map(([k, v]) => ({ hour : k, count : v }))
+        .map(([k, v]) => ({ hour: k, count: v }))
 };
 
 function bucketByHourOfDay(arr) {
@@ -65,7 +66,7 @@ function animateValue(element, start, end, duration) {
 }
 
 
-window.addEventListener('load', async function() {
+window.addEventListener('load', async function () {
 
     // try {
     //     fetch("http://127.0.0.1:8000/generate_test_data", {
@@ -75,11 +76,11 @@ window.addEventListener('load', async function() {
     //     console.error(error)
     // }
 
-    try{
+    try {
         const response = await fetch('http://127.0.0.1:8000/stats', {
             method: 'GET'
         });
-        if (response.ok){
+        if (response.ok) {
             const data = await response.json()
             console.log(data)
             const dataStats = data.dataStats
@@ -88,6 +89,7 @@ window.addEventListener('load', async function() {
 
             const dataVisits = data.dataVisits
             const loginTime = dataVisits.loginTime
+            const loginTimeVerified = dataVisits.loginTimeVerified
             const scanTimeQr = dataVisits.scanTimeQr
             const scanTimeUrl = dataVisits.scanTimeUrl
 
@@ -103,27 +105,35 @@ window.addEventListener('load', async function() {
 
 
 
-            bucketsLogin   = bucketByHour(loginTime);
-            bucketsScanQr  = bucketByHour(scanTimeQr);
+            bucketsLogin = bucketByHour(loginTime);
+            bucketsLoginVerified = bucketByHour(loginTimeVerified);
+            bucketsScanQr = bucketByHour(scanTimeQr);
             bucketsScanUrl = bucketByHour(scanTimeUrl);
 
             const hourlyLogins = bucketByHourOfDay(loginTime);
+            const hourlyLoginsVerified = bucketByHourOfDay(loginTimeVerified);
             const hourlyScanQr = bucketByHourOfDay(scanTimeQr);
             const hourlyScanUrl = bucketByHourOfDay(scanTimeUrl);
 
             const hoursOfDayLabels = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}h`);
 
-            // Chart pour les logins
+            // Chart pour les connexions (Tentatives vs Vérifiées)
             const loginCtx = document.getElementById('loginChart').getContext('2d');
             new Chart(loginCtx, {
                 type: 'bar',
                 data: {
                     labels: hoursOfDayLabels,
                     datasets: [{
-                        label: 'Nombre de connexions',
+                        label: 'Tentatives de connexion',
                         data: hourlyLogins,
                         backgroundColor: 'rgba(52, 152, 219, 0.6)',
                         borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Connexions vérifiées',
+                        data: hourlyLoginsVerified,
+                        backgroundColor: 'rgba(46, 204, 113, 0.6)',
+                        borderColor: 'rgba(46, 204, 113, 1)',
                         borderWidth: 1
                     }]
                 },
@@ -179,29 +189,39 @@ window.addEventListener('load', async function() {
 
             // Préparez les données pour la chronologie
             const bucketsLoginMap = new Map(bucketsLogin.map(item => [item.hour, item.count]));
+            const bucketsLoginVerifiedMap = new Map(bucketsLoginVerified.map(item => [item.hour, item.count]));
             const bucketsScanQrMap = new Map(bucketsScanQr.map(item => [item.hour, item.count]));
             const bucketsScanUrlMap = new Map(bucketsScanUrl.map(item => [item.hour, item.count]));
 
             const loginTimelineData = timelineLabels.map(hour => bucketsLoginMap.get(hour) || 0);
+            const loginVerifiedTimelineData = timelineLabels.map(hour => bucketsLoginVerifiedMap.get(hour) || 0);
             const scanQrTimelineData = timelineLabels.map(hour => bucketsScanQrMap.get(hour) || 0);
             const scanUrlTimelineData = timelineLabels.map(hour => bucketsScanUrlMap.get(hour) || 0);
 
             const formattedTimelineLabels = timelineLabels.map(h => new Date(h).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit' }) + 'h');
 
-            // Chart chronologique pour les logins
+            // Chart chronologique pour les connexions (Tentatives vs Vérifiées)
             const loginTimelineCtx = document.getElementById('loginTimelineChart').getContext('2d');
             new Chart(loginTimelineCtx, {
-                type: 'line', // 'line' est plus adapté pour une longue chronologie
+                type: 'line',
                 data: {
                     labels: formattedTimelineLabels,
                     datasets: [{
-                        label: 'Nombre de connexions',
+                        label: 'Tentatives de connexion',
                         data: loginTimelineData,
                         backgroundColor: 'rgba(52, 152, 219, 0.2)',
                         borderColor: 'rgba(52, 152, 219, 1)',
                         borderWidth: 1,
                         fill: true,
-                        tension: 0.3 // Rend la ligne plus lisse
+                        tension: 0.3
+                    }, {
+                        label: 'Connexions vérifiées',
+                        data: loginVerifiedTimelineData,
+                        backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        borderWidth: 1,
+                        fill: true,
+                        tension: 0.3
                     }]
                 },
                 options: {
@@ -245,7 +265,7 @@ window.addEventListener('load', async function() {
         }
 
 
-    } catch(error){
+    } catch (error) {
         console.error(error)
     }
 });

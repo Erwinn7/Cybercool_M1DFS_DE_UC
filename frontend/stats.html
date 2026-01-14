@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Statistiques</title>
     <link rel="stylesheet" href="stats.css">
 </head>
+
 <body>
     <main>
         <h1>Tableau de bord des statistiques</h1>
@@ -34,7 +36,7 @@
 
         <div class="chart-grid">
             <div class="chart-wrapper">
-                <h2>Connexions par heure</h2>
+                <h2>Connexions par heure (Tentatives vs Vérifiées)</h2>
                 <canvas id="loginChart"></canvas>
             </div>
             <div class="chart-wrapper">
@@ -42,7 +44,7 @@
                 <canvas id="scanChart"></canvas>
             </div>
             <div class="chart-wrapper">
-                <h2>Chronologie des connexions</h2>
+                <h2>Chronologie des connexions (Tentatives vs Vérifiées)</h2>
                 <canvas id="loginTimelineChart"></canvas>
             </div>
             <div class="chart-wrapper">
@@ -51,9 +53,9 @@
             </div>
         </div>
     </main>
-    <script
-        src="https://cdn.jsdelivr.net/npm/chart.js">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js">
     </script>
-<script type="text/javascript" src="stats.js"></script>
+    <script type="text/javascript" src="stats.js"></script>
 </body>
+
 </html>

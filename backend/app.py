@@ -54,7 +54,7 @@ LOG_FILE = "visits.json"
 
 def load_db():
     if not os.path.exists(LOG_FILE):
-        empty = {"loginTime": []}
+        empty = {"loginTime": [], "loginTimeVerified": []}
         with open(LOG_FILE, "w") as f:
             json.dump(empty, f, indent=4)
         return empty
@@ -66,15 +66,22 @@ def save_db(data):
     with open(LOG_FILE, "w") as f:
         json.dump(data, f, indent=4)
 
-def login_time(): # Par défaut QR
+def login_time():
     """
-    source = "qr" or "direct"
+    Enregistre le timestamp de chaque tentative de connexion
     """
     db = load_db()
-
     timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
-   
     db.setdefault("loginTime", []).append(timestamp)
+    save_db(db)
+
+def login_time_verified():
+    """
+    Enregistre le timestamp des connexions avec username au bon format
+    """
+    db = load_db()
+    timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    db.setdefault("loginTimeVerified", []).append(timestamp)
     save_db(db)
 
 # Fonction modulaire pour incrémenter un compteur dans un JSON
@@ -98,12 +105,13 @@ def increment_json_counter(filepath: str, key: str, amount: int = 1):
 async def login(username: str = Form(...)):
     try:
         increment_json_counter("stats.json", "count_form_login", 1)
+        login_time()  # Enregistre toutes les tentatives
     except Exception:
         raise HTTPException(status_code=500, detail="Internal Server Error")
     
     if verify_username(username):
         print("Login verified")
-        login_time()
+        login_time_verified()  # Enregistre les connexions au bon format
         try:
             increment_json_counter("stats.json", "count_form_login_verified", 1)
         except Exception:
