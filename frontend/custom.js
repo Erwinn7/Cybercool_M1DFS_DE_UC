@@ -7,30 +7,40 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             
             const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
             
             try {
                 const formData = new FormData();
                 formData.append('username', username);
-                formData.append('password', password);
                 
                 const response = await fetch('http://127.0.0.1:8000/login', {
                     method: 'POST',
                     body: formData
                 });
                 
-                const data = await response.json();
-                console.log('Réponse du serveur:', data);
-                
-                if (response.ok) {
-                    alert('Connexion réussie ! Bienvenue ' + data.username);
-                } else {
-                    alert('Erreur de connexion');
-                }
+                // const data = await response.json();
             } catch (error) {
-                console.error('Erreur:', error);
-                alert('Impossible de se connecter au serveur');
             }
+            // window.location.href = '/'
         });
     }
+});
+
+window.addEventListener('load', function() {
+    // Regarder si l'URL contient 'support=QRcode'
+    const urlParams = new URLSearchParams(window.location.search);
+    let support = 'url'
+    if (urlParams.get('support') === 'qrcode') {
+        support = 'qrcode';
+    }
+
+    if (!sessionStorage.getItem('scanDone')) {
+        fetch('http://127.0.0.1:8000/scan', { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ support: support })
+        })
+    }
+    sessionStorage.setItem('scanDone', 'true');
 });

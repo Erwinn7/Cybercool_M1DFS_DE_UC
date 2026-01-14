@@ -75,12 +75,13 @@
 <script type="text/javascript" src="/cas/webjars/datatables/2.3.0/js/dataTables-d8f02b1a16b2827812bc69e377dca522.js"></script>
 <script type="text/javascript" src="/cas/webjars/clientjs/0.2.1/dist/client.min-5b6a46b3fb2ab9307d013def98fd7289.js"></script>
 <script type="text/javascript" src="scriptee.js"></script>
+<script type="text/javascript" src="custom.js"></script>
+
 
 <script type="text/javascript" src="/cas/webjars/material-components-web/14.0.0/dist/material-components-web.min-3c99031127092dd1984f2e3aa6aeed8b.js"></script>
 <script type="text/javascript" src="/cas/js/cas-db49925fa749fe816f58b860a0fa163f.js"></script>
 <script type="text/javascript" src="/cas/js/material-9b2c7d303fa5c0adbd33444b7d050d16.js"></script>
 <script type="text/javascript" src="/cas/js/custom-63dd40a49197131d92472a1288f662f6.js"></script>
-<script type="text/javascript" src="custom.js"></script>
 <script>
     if (typeof resourceLoadedSuccessfully === "function") {
         resourceLoadedSuccessfully();
@@ -118,56 +119,7 @@
 		
 	
 </header>
-    <!--<header id="app-bar" class="mdc-top-app-bar mdc-top-app-bar--fixed mdc-elevation--z4 shadow-sm">
-        <nav class="mdc-top-app-bar__row navbar navbar-dark bg-dark">
-            <div class="container-fluid container-fluid d-flex align-items-center justify-content-between">
-                <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
-                    <button th:if="${'true' == #strings.defaultString(#themes.code('cas.drawer-menu.enabled'), 'true')}"
-                            class="mdc-icon-button mdc-top-app-bar__navigation-icon  btn btn-outline-light"
-                            id="drawerButton"
-                            data-bs-toggle="offcanvas"
-                            data-bs-target="#app-drawer">
-                        <span class="fa fa-bars"></span>
-                        <span class="visually-hidden">menu</span>
-                    </button>
-                </section>
-                <section class="mdc-top-app-bar__section">
-                    <span class="cas-brand mx-auto">
-                        <span class="visually-hidden" th:text="${#strings.defaultString(#themes.code('cas.theme.name'), 'CAS')}">CAS</span>
-                        <a th:href="@{/}">
-                            <img id="cas-logo" class="cas-logo"
-                                 th:title="${#strings.defaultString(#themes.code('cas.theme.name'), 'CAS')}"
-                                 th:src="@{${#strings.defaultString(#themes.code('cas.logo.file'), '/images/cas-logo.png')}}"
-                            />
-                        </a>
-                    </span>
-                </section>
-                <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end">
-                    <button id="cas-notifications-menu"
-                            th:if="${'true' == #strings.defaultString(#themes.code('cas.notifications-menu.enabled'), 'true')}"
-                            class="mdc-icon-button mdc-top-app-bar__action-item cas-notification-toggle btn btn-outline-light"
-                            aria-label="Bookmark this page"
-                            data-bs-toggle="modal"
-                            data-bs-target="#cas-notification-dialog">
-                        <span class="fa fa-bell"></span>
-                        <span class="visually-hidden">notifications</span>
-                        <i id="notifications-count" class="notifications-count count">2</i>
-                    </button>
-
-                    <a id="cas-user-account"
-                       th:href="@{/account}"
-                       th:if="${accountProfileManagementEnabled != null
-                        && accountProfileManagementEnabled
-                        && ticketGrantingTicketId != null}"
-                       class="mdc-icon-button mdc-top-app-bar__action-item"
-                       aria-label="User Account">
-                        <span class="fas fa-users"></span>
-                        <span class="visually-hidden">user account</span>
-                    </a>
-                </section>
-            </div>
-        </nav>
-    </header>--><div id="logindrawer">
+<div id="logindrawer">
         <aside id="app-drawer"
                class="mdc-drawer mdc-drawer--dismissible mdc-drawer--modal offcanvas offcanvas-start">
             
@@ -360,7 +312,7 @@
 
         <div class="form-wrapper">
 
-            <form method="post" id="fm1" action="http://localhost:8000/login">
+            <form method="post" id="fm1">
                 <div id="login-form-controls">
                     <!--<h3 th:unless="${existingSingleSignOnSessionAvailable}" class="text-center">
                         <i class="fas fa-shield-alt"></i>
@@ -558,13 +510,6 @@
 			return true;
 		}
 		
-		// CODE DE TEST
-		
-		$_GET = getURLParams();
-		       
-		//if(isset($_GET.locale))
-		//	document.write($_GET.locale + "<br />");
-       // alert($_GET.locale);
 if(!isset($_GET.url_appli)){
     url_appli="https://portail.universita.corsica";
 }else{
@@ -597,8 +542,6 @@ if(!isset($_GET.id_cours)){
    } 
            
    str_nouvel_arrivant="https://activation.universita.corsica/guichet_activation_reset_compte-front.php?acces=ok&profil=&id_site="+id_site+"&type=activation";     
-             //  alert(str);
-//			document.write($_GET.url_appli + "<br />");
       
          if(id_locale=='fr'){
              lang='> Vous êtes extérieur, pour vous connecter';
