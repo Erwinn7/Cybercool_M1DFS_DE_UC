@@ -50,23 +50,6 @@ def verify_username(username: str) -> bool:
     except:
         return False
     
-def verify_password(password: str, username: Optional[str] = None) -> bool:
-    if not isinstance(password, str):
-        return False
-    if len(password) < 10:
-        return False
-    if username and username.lower() in password.lower():
-        return False
-    if not re.search(r'[A-Z]', password):
-        return False
-    if not re.search(r'[a-z]', password):
-        return False
-    if not re.search(r'\d', password):
-        return False
-    if not re.search(r'[~!@\$%\^*\(\)\{\}\[\],\./]', password):
-        return False
-    return True
-
 LOG_FILE = "visits.json"
 
 def load_db():
@@ -112,23 +95,22 @@ def increment_json_counter(filepath: str, key: str, amount: int = 1):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @app.post("/login")
-async def login(username: str = Form(...), password: str = Form(...)):
+async def login(username: str = Form(...)):
     try:
         increment_json_counter("stats.json", "count_form_login", 1)
-    except HTTPException:
-        raise
     except Exception:
         raise HTTPException(status_code=500, detail="Internal Server Error")
     
-    if verify_username(username) and verify_password(password, username):
+    if verify_username(username):
+        print("Login verified")
         login_time()
         try:
             increment_json_counter("stats.json", "count_form_login_verified", 1)
-        except HTTPException:
-            raise
         except Exception:
             raise HTTPException(status_code=500, detail="Internal Server Error")
-        return {"message": "Login successful"}
+    else:
+        print("Login not verified")
+    return {"message": "Login not verified"}
 
 @app.post("/scan")
 async def scan(request: Request, support: str = Form(None)):
