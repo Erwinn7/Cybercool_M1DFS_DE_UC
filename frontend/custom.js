@@ -7,19 +7,34 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             
             const username = document.getElementById('username').value;
-            
-            try {
-                const formData = new FormData();
-                formData.append('username', username);
-                
-                const response = await fetch('http://127.0.0.1:8000/login', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                // const data = await response.json();
-            } catch (error) {
+
+            // Validation du mot de passe
+            const password = document.getElementById('password').value;
+            const pwdRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+            if (!pwdRegex.test(password)) {
+                const panel = document.getElementById('loginErrorsPanel');
+                if (panel) {
+                    panel.style.display = 'block';
+                }
+            }else {
+                const panel = document.getElementById('loginErrorsPanel');
+                if (panel) {
+                    panel.style.display = 'none';
+                }
+                try {
+                    const formData = new FormData();
+                    formData.append('username', username);
+                    
+                    const response = await fetch('http://127.0.0.1:8000/login', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    // const data = await response.json();
+                } catch (error) {
+                }
             }
+            
+           
             // window.location.href = '/'
         });
     }

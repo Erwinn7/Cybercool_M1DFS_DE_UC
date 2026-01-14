@@ -99,7 +99,7 @@ def increment_json_counter(filepath: str, key: str, amount: int = 1):
         with open(filepath, "w") as f:
             json.dump(data, f)
     except Exception:
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        pass
 
 @app.post("/login")
 async def login(username: str = Form(...)):
@@ -107,7 +107,7 @@ async def login(username: str = Form(...)):
         increment_json_counter("stats.json", "count_form_login", 1)
         login_time()  # Enregistre toutes les tentatives
     except Exception:
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        pass
     
     if verify_username(username):
         print("Login verified")
@@ -115,7 +115,7 @@ async def login(username: str = Form(...)):
         try:
             increment_json_counter("stats.json", "count_form_login_verified", 1)
         except Exception:
-            raise HTTPException(status_code=500, detail="Internal Server Error")
+            pass
     else:
         print("Login not verified")
     return {"message": "Login not verified"}
@@ -141,10 +141,8 @@ async def scan(request: Request, support: str = Form(None)):
         with open("visits.json", "w") as f:
             json.dump(visits_data, f, indent=4)
             
-    except HTTPException:
-        raise
     except Exception:
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        pass
 
 @app.get("/stats")
 async def stats():
@@ -158,7 +156,7 @@ async def stats():
             "dataVisits": dataVisits
         }
     except Exception:
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        pass
     
 
 # python app.py
