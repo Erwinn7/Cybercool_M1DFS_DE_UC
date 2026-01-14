@@ -1,3 +1,4 @@
+
 # Python
 __pycache__/
 *.py[cod]
@@ -10,6 +11,9 @@ __pycache__/
 venv/
 .env/
 env/
+portailWifiEnv/
+.venv/
+*.pyc
 
 # IDE folders
 .vscode/
@@ -21,4 +25,5 @@ env/
 # FastAPI/Uvicorn logs (if you have any)
 *.log
 
+# Database files
 logins.json
