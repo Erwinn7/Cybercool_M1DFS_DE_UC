@@ -7,6 +7,11 @@ let bucketsScanQr = null
 let bucketsScanUrl = null
 let bucketsLinkClick = null
 
+// Timeline chart instances for updating
+let loginTimelineChart = null
+let scanTimelineChart = null
+let linkClickTimelineChart = null
+
 function bucketByHour(arr) {
     const map = new Map();
     if (!arr || arr.length === 0) {
@@ -94,16 +99,86 @@ function getLinkColor(linkName) {
     return linkColors[linkName] || `hsl(${Math.random() * 360}, 70%, 60%)`;
 }
 
+// Format date for datetime-local input
+function formatDateTimeLocal(date) {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+// Initialize default dates (2 months ago to now)
+function getDefaultDates() {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - 2);
+    return { startDate, endDate };
+}
+
+// Update all timeline charts with new date range
+function updateTimelineCharts(startDate, endDate) {
+    const timelineLabels = generateHourlyLabels(startDate, endDate);
+
+    const bucketsLoginMap = new Map(bucketsLogin.map(item => [item.hour, item.count]));
+    const bucketsLoginVerifiedMap = new Map(bucketsLoginVerified.map(item => [item.hour, item.count]));
+    const bucketsScanQrMap = new Map(bucketsScanQr.map(item => [item.hour, item.count]));
+    const bucketsScanUrlMap = new Map(bucketsScanUrl.map(item => [item.hour, item.count]));
+    const bucketsLinkClickMap = new Map(bucketsLinkClick.map(item => [item.hour, item.count]));
+
+    const loginTimelineData = timelineLabels.map(hour => bucketsLoginMap.get(hour) || 0);
+    const loginVerifiedTimelineData = timelineLabels.map(hour => bucketsLoginVerifiedMap.get(hour) || 0);
+    const scanQrTimelineData = timelineLabels.map(hour => bucketsScanQrMap.get(hour) || 0);
+    const scanUrlTimelineData = timelineLabels.map(hour => bucketsScanUrlMap.get(hour) || 0);
+    const linkClickTimelineData = timelineLabels.map(hour => bucketsLinkClickMap.get(hour) || 0);
+
+    const formattedTimelineLabels = timelineLabels.map(h =>
+        new Date(h).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit' }) + 'h'
+    );
+
+    // Update login timeline chart
+    loginTimelineChart.data.labels = formattedTimelineLabels;
+    loginTimelineChart.data.datasets[0].data = loginTimelineData;
+    loginTimelineChart.data.datasets[1].data = loginVerifiedTimelineData;
+    loginTimelineChart.update();
+
+    // Update scan timeline chart
+    scanTimelineChart.data.labels = formattedTimelineLabels;
+    scanTimelineChart.data.datasets[0].data = scanQrTimelineData;
+    scanTimelineChart.data.datasets[1].data = scanUrlTimelineData;
+    scanTimelineChart.update();
+
+    // Update link click timeline chart
+    linkClickTimelineChart.data.labels = formattedTimelineLabels;
+    linkClickTimelineChart.data.datasets[0].data = linkClickTimelineData;
+    linkClickTimelineChart.update();
+}
 
 window.addEventListener('load', async function () {
 
-    // try {
-    //     fetch("http://127.0.0.1:8000/generate_test_data", {
-    //         method: 'POST'
-    //     });
-    // } catch (error) {
-    //     console.error(error)
-    // }
+    // Set default dates in inputs
+    const { startDate: defaultStart, endDate: defaultEnd } = getDefaultDates();
+    document.getElementById('startDate').value = formatDateTimeLocal(defaultStart);
+    document.getElementById('endDate').value = formatDateTimeLocal(defaultEnd);
+
+    // Add event listener for date filter button
+    document.getElementById('applyDateFilter').addEventListener('click', function () {
+        const startInput = document.getElementById('startDate').value;
+        const endInput = document.getElementById('endDate').value;
+
+        if (startInput && endInput) {
+            const startDate = new Date(startInput);
+            const endDate = new Date(endInput);
+
+            if (startDate <= endDate) {
+                updateTimelineCharts(startDate, endDate);
+            } else {
+                alert('La date de début doit être antérieure à la date de fin.');
+            }
+        }
+    });
 
     try {
         const response = await fetch('http://127.0.0.1:8000/stats', {
@@ -286,8 +361,7 @@ window.addEventListener('load', async function () {
 
             // --- GRAPHIQUES CHRONOLOGIQUES ---
 
-            const startDate = new Date('2025-11-19T00:00:00.000Z');
-            const endDate = new Date();
+            const { startDate, endDate } = getDefaultDates();
             const timelineLabels = generateHourlyLabels(startDate, endDate);
 
             // Préparez les données pour la chronologie
@@ -307,7 +381,7 @@ window.addEventListener('load', async function () {
 
             // Chart chronologique pour les connexions (Tentatives vs Vérifiées)
             const loginTimelineCtx = document.getElementById('loginTimelineChart').getContext('2d');
-            new Chart(loginTimelineCtx, {
+            loginTimelineChart = new Chart(loginTimelineCtx, {
                 type: 'line',
                 data: {
                     labels: formattedTimelineLabels,
@@ -343,7 +417,7 @@ window.addEventListener('load', async function () {
 
             // Chart chronologique pour la comparaison des scans
             const scanTimelineCtx = document.getElementById('scanTimelineChart').getContext('2d');
-            new Chart(scanTimelineCtx, {
+            scanTimelineChart = new Chart(scanTimelineCtx, {
                 type: 'line',
                 data: {
                     labels: formattedTimelineLabels,
@@ -370,7 +444,7 @@ window.addEventListener('load', async function () {
 
             // Chart chronologique pour les clics d'apprentissage
             const linkClickTimelineCtx = document.getElementById('linkClickTimelineChart').getContext('2d');
-            new Chart(linkClickTimelineCtx, {
+            linkClickTimelineChart = new Chart(linkClickTimelineCtx, {
                 type: 'line',
                 data: {
                     labels: formattedTimelineLabels,

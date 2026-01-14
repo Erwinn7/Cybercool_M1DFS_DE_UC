@@ -55,6 +55,22 @@
                 <h2>Clics par type de lien</h2>
                 <canvas id="linkTypeChart"></canvas>
             </div>
+            <!-- Filtre de dates pour les chronologies -->
+            <div class="date-filter-wrapper">
+                <h2>Chronologies</h2>
+                <div class="date-filter">
+                    <div class="date-input-group">
+                        <label for="startDate">Date début</label>
+                        <input type="datetime-local" id="startDate">
+                    </div>
+                    <div class="date-input-group">
+                        <label for="endDate">Date fin</label>
+                        <input type="datetime-local" id="endDate">
+                    </div>
+                    <button id="applyDateFilter" class="btn-apply">Appliquer</button>
+                </div>
+            </div>
+
             <div class="chart-wrapper">
                 <h2>Chronologie des connexions (Tentatives vs Vérifiées)</h2>
                 <canvas id="loginTimelineChart"></canvas>

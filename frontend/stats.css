@@ -11,7 +11,8 @@ main {
     margin: auto;
 }
 
-h1, h2 {
+h1,
+h2 {
     text-align: center;
     color: #2c3e50;
     font-weight: 300;
@@ -72,4 +73,70 @@ h2 {
 
 .chart-wrapper:hover {
     transform: translateY(-5px);
+}
+
+/* Date filter styles */
+.date-filter-wrapper {
+    background-color: #ffffff;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
+    grid-column: 1 / -1;
+}
+
+.date-filter-wrapper h2 {
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.date-filter {
+    display: flex;
+    gap: 20px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.date-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.date-input-group label {
+    font-size: 0.9em;
+    color: #566573;
+    font-weight: 500;
+}
+
+.date-input-group input {
+    padding: 10px 14px;
+    border: 1px solid #dde4e9;
+    border-radius: 6px;
+    font-size: 0.95em;
+    color: #2c3e50;
+    background: #f8fafc;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.date-input-group input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+}
+
+.btn-apply {
+    padding: 10px 24px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-apply:hover {
+    background-color: #2980b9;
 }
