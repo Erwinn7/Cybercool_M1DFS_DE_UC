@@ -11,8 +11,11 @@ import uvicorn
 # App metadata
 app = FastAPI()
 
+# Chemin absolu vers le fichier de données
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Remonte de 2 niveaux (backend -> racine)
+LOG_FILE = os.path.join(BASE_DIR, "data", "visits.json")   # database
 
-LOG_FILE = "visits.json"   # database
+# Cookies pour éviter de compter plusieurs fois la même visite
 COOKIE_QR = "visited_qr"
 COOKIE_DIRECT = "visited_direct"
 
@@ -25,12 +28,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("/login")
-async def login(username: str = Form(...), password: str = Form(...)):
-    print(f"Received login attempt for user: {username}, password: {password}")
+@app.post("/login/qr")
+async def login_qr(username: str = Form(...), password: str = Form(...)):
+    print(f"Received QR login attempt for user: {username}, password: {password}")
     # Ici vous pouvez ajouter votre logique d'authentification
 
-    log_visit()
+    log_login("qr")
+    return {"message": "Login successful", "username": username}
+
+@app.post("/login/direct")
+async def login_direct(username: str = Form(...), password: str = Form(...)):
+    print(f"Received direct login attempt for user: {username}, password: {password}")
+    # Ici vous pouvez ajouter votre logique d'authentification
+
+    log_login("direct")
     return {"message": "Login successful", "username": username}
 
 
@@ -40,7 +51,12 @@ async def login(username: str = Form(...), password: str = Form(...)):
 
 def load_db():
     if not os.path.exists(LOG_FILE):
-        empty = {"loginQR": [], "loginDirect": []}
+        empty = {
+            "visitsQR": [],
+            "visitsDirect": [],
+            "loginQR": [],
+            "loginDirect": []
+        }
         with open(LOG_FILE, "w") as f:
             json.dump(empty, f, indent=4)
         return empty
@@ -50,7 +66,7 @@ def load_db():
     
 def save_db(data):
     with open(LOG_FILE, "w") as f:
-        json.dump(data, f, indent=4)
+        json.dump(data, f, indent=4)    
 
 # -----------------------------
 #  Fonctions pour log les visites
@@ -83,9 +99,23 @@ def log_visit(source: str = 'qr'): # Par défaut QR
     timestamp = datetime.datetime.now(datetime.UTC).isoformat()
 
     if source == "qr":
-        db["loginQR"].append(timestamp)
+        db["visitsQR"].append(timestamp)
     elif source == "direct":
-        db["loginDirect"].append(timestamp)
+        db["visitsDirect"].append(timestamp)
+
+    save_db(db)
+
+def log_login(source: str):
+    """
+    source: "qr" or "direct"
+    """
+    db = load_db()
+    now = datetime.datetime.now(datetime.UTC).isoformat()
+
+    if source == "qr":
+        db["loginQR"].append(now)
+    else:
+        db["loginDirect"].append(now)
 
     save_db(db)
 

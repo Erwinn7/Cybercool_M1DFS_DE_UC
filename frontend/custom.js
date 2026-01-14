@@ -9,12 +9,20 @@ document.addEventListener('DOMContentLoaded', function() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             
+            // Détecter la source de la visite
+            const urlParams = new URLSearchParams(window.location.search);
+            const source = urlParams.get('source') || 'direct'; // 'qr' ou 'direct'
+            
             try {
                 const formData = new FormData();
                 formData.append('username', username);
                 formData.append('password', password);
+                formData.append('source', source);
                 
-                const response = await fetch('http://127.0.0.1:8000/login', {
+                // Utiliser l'endpoint approprié selon la source
+                const endpoint = source === 'qr' ? 'http://127.0.0.1:8000/login/qr' : 'http://127.0.0.1:8000/login/direct';
+                
+                const response = await fetch(endpoint, {
                     method: 'POST',
                     body: formData
                 });
