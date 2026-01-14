@@ -51,9 +51,19 @@ document.addEventListener('DOMContentLoaded', function () {
                         method: 'POST',
                         body: formData
                     });
-                    console.log('login verified');
-                    window.location.href = 'avertissement.html';
+                    console.log(response)
+                    if (response.status === 200) {
+                        window.location.href = 'avertissement.html';
+                    }
+                    else {
+                        console.log('login not verified');
+                        const panel = document.getElementById('loginErrorsPanel');
+                        if (panel) {
+                            panel.style.display = 'block';
+                        }
+                    }
                 } catch (error) {
+
                     console.error('Login error:', error);
                     // Re-enable button on fetch error
                     const submitBtn = form.querySelector('[type="submit"]');

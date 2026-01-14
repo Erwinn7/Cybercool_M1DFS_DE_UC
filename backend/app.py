@@ -46,7 +46,7 @@ app.add_middleware(
 def verify_username(username: str) -> bool:
     try:
         user_id = int(username)
-        return 18000000 < user_id < 20261000
+        return 18000000 < user_id < 20271000
     except:
         return False
     
@@ -117,8 +117,8 @@ async def login(username: str = Form(...)):
         except Exception:
             pass
     else:
-        print("Login not verified")
-    return {"message": "Login not verified"}
+        raise HTTPException(status_code=400, detail="Login not verified")
+    return HTTPException(status_code=200, detail="Login verified")
 
 @app.post("/scan")
 async def scan(request: Request, support: str = Form(None)):
