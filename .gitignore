@@ -11,7 +11,8 @@ __pycache__/
 venv/
 .env/
 env/
-./portailWifiEnv
+portailWifiEnv/
+.venv/
 *.pyc
 
 # IDE folders
@@ -24,4 +25,5 @@ env/
 # FastAPI/Uvicorn logs (if you have any)
 *.log
 
+# Database files
 logins.json
